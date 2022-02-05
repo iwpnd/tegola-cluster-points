@@ -1,0 +1,70 @@
+[webserver]
+port = ":8080"
+
+[webserver.headers]
+Cache-Control = "s-maxage=3600"
+
+[cache]
+type = "redis"
+address = "${REDIS_HOST}"
+password = "${REDIS_PASSWORD}"
+ttl = 10
+max_zoom = 18
+ssl = "${TEGOLA_REDIS_SSL}"
+
+[[providers]]
+name = "points"
+type = "mvt_postgis"
+host = "${DB_HOST}"
+port = "${DB_PORT}"
+database = "${DB_NAME}"
+user = "${DB_USER}"
+password = "${DB_PASSWORD}"
+srid = 4326             
+ssl_mode = "${TEGOLA_POSTGIS_SSL}"
+
+  [[providers.layers]]
+  name = "all"
+  geometry_type="point"
+  geometry_fieldname = "geom"
+  id_fieldname = "gid"
+  sql = """
+    SELECT ST_AsMVTGeom(geom, !BBOX!) as geom,
+    gid
+    FROM points
+    WHERE geom && !BBOX!"""
+
+  [[providers.layers]]
+  name = "center"
+  geometry_type="point"
+  geometry_fieldname = "geom"
+  id_fieldname = "cid"
+  sql = """
+    SELECT x.cid, ST_AsMVTGeom(ST_Centroid(ST_COLLECT(x.geom)),!BBOX!) geom FROM
+    (
+        SELECT ST_ClusterDBSCAN(geom, eps := 0.001, minpoints := 3) over () AS cid, geom
+        FROM points
+        WHERE geom
+            @
+            !BBOX!
+        GROUP BY(geom)
+    ) as x
+    WHERE cid IS NOT NULL AND geom && !BBOX!
+    GROUP BY x.cid
+    ORDER BY cid
+    """
+
+[[maps]]
+name = "pointclouds"
+center = [13.4050, 52.5200, 9.0]
+
+  [[maps.layers]]
+  provider_layer = "points.all"
+  min_zoom = 12
+  max_zoom = 18
+
+  [[maps.layers]]
+  provider_layer = "points.center"
+  min_zoom = 0
+  max_zoom = 11
+

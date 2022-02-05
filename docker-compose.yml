@@ -1,0 +1,52 @@
+version: "3"
+
+services:
+  database:
+    image: postgis/postgis:13-3.1
+    container_name: database
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d points"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: points
+    volumes:
+      - ./bin:/data
+    ports:
+      - 5433:5432
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - 6379:6379
+
+  tegola:
+    image: iwpnd/tegolassl:edge
+    container_name: tegola
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: "unless-stopped"
+    ports:
+      - 8080:8080
+    volumes:
+      - ./config:/data
+    command: >
+      serve --config /data/config.toml
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: points
+      DB_USER: user
+      DB_PASSWORD: password
+      TEGOLA_POSTGIS_SSL: disable
+      TEGOLA_REDIS_SSL: false
+      REDIS_HOST: redis:6379
+      REDIS_PASSWORD: ""
+      TEGOLA_SQL_DEBUG: LAYER_SQL
+
+

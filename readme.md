@@ -34,7 +34,7 @@ Open the tegola viewer at `http://localhost/8080` and see the result.
 
 ## Gotcha
 
-The example clusters points in a proximity of 0.001 degree to each other. This is appoximately 111mm, depending on where you are at in the world. For better results use another CRS and change the `eps` distance value of the provider sql to your liking.
+The example clusters points in a proximity of 0.001 degree to each other. This is appoximately 111m, depending on where you are at in the world. For better results use another CRS and change the `eps` distance value of the provider sql to your liking.
 
 ## License
 
@@ -42,7 +42,7 @@ MIT
 
 ## Maintainer
 
-Benjamin Ramser - [@iwpnd](https://github.com/iwpnd)
+Benjamin Ramser - [@iwpnd](https://github.com/iwpnd). 
 Project Link: [https://github.com/iwpnd/tegola-cluster-points](https://github.com/iwpnd/tegola-cluster-points)
 
 ## Acknowledgements

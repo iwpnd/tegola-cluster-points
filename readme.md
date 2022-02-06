@@ -27,7 +27,7 @@ PGPASSWORD=password psql \
     -p 5433 \
     -d points \
     -a \
-    -f /sql/init.sql \
+    -f /sql/init.sql
 ```
 
 Open the tegola viewer at `http://localhost/8080` and see the result.

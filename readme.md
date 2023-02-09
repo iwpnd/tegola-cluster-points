@@ -22,7 +22,7 @@ See `sql/init.sql`.
 
 ```
 PGPASSWORD=password psql \
-    -u user \
+    -U user \
     -h localhost \
     -p 5433 \
     -d points \
